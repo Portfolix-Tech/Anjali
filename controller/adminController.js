@@ -332,6 +332,8 @@ export const getModulesUnderCourse = asyncHandler(async (req, res, next) => {
   });
 });
 
+
+
 // ------------------------------------------------UPDATE MODULE UNDER COURE----------------------------------------
 
 export const updateModuleUnderCourse = asyncHandler(async (req, res, next) => {
@@ -470,6 +472,7 @@ export const createLessonUnderModule = asyncHandler(async (req, res, next) => {
     lesson: newLesson,
   });
 });
+
 
 /**
  * @GET_ALL_LESSONS_UNDER_MODULE    ------------------------------------GET ALL LESSONS UNDER THE COURSE ID AND MODULE ID------------------------------------------------
@@ -670,21 +673,21 @@ export const assignCourseToUser = asyncHandler(async (req, res, next) => {
  * Deletes a user from the database based on their ID.
  */
 export const deleteUserById = asyncHandler(async (req, res, next) => {
-  const { id } = req.params; // Get the user ID from the request parameters
+  const { userId } = req.params; // Get the user ID from the request parameters
 
   // Check if the user exists
-  const user = await User.findById(id);
+  const user = await User.findById(userId);
   if (!user) {
     return next(new AppError("User not found", 404));
   }
 
   // Delete the user
-  await User.deleteOne({_id:id});
+  await User.deleteOne({_id:userId});
 
   res.status(200).json({
     success: true,
     message: "User deleted successfully",
-    userId: id,
+    userId,
   });
 });
 

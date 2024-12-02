@@ -39,9 +39,9 @@ route.get("/course/:courseId/module/:moduleId/getAllLessonsUnderModule",getAllLe
 route.put("/course/:courseId/module/:moduleId/lesson/updateLessonUnderModule/:lessonId",updateLessonUnderModule);
 route.delete("/course/:courseId/module/:moduleId/lesson/deleteLessonUnderModule/:lessonId",deleteLessonUnderModule);
 route.get("/getAllUsers",getAllUsers);
-route.delete("/deleteUserById/:id",deleteUserById);
+route.delete("/deleteUserById/:userId",deleteUserById);
 route.post("/assignCourseToUser", assignCourseToUser,);
-route.delete("/:id/removeCourseFromUser/:courseId", removeCourseFromUser);
+route.delete("/:userId/removeCourseFromUser/:courseId", removeCourseFromUser);
 
 
 
