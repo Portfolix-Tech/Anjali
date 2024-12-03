@@ -91,64 +91,111 @@ export const getAssignedCourses = asyncHandler(async (req, res, next) => {
   });
 });
 
-
-
 /**
- * @GET_ALL_MODULES_UNDER_COURSE
- * Fetches all modules under a specific course by courseId.
+ * @USER_GET_MODULES_UNDER_ASSIGNED_COURSE ----------------GET MODULES UNDER ASSIGNED COURSE-------------------
+ * Retrieves the modules under a specific course assigned to the user.
  */
-export const getModulesUnderCourse = asyncHandler(async (req, res, next) => {
-  const { courseId } = req.params;
+export const getModulesUnderAssignedCourse = asyncHandler(async (req, res, next) => {
+  const { userId, courseId } = req.params; // Extract userId and courseId from request parameters
 
-  // Find the course by ID and populate its modules
-  const course = await Course.findById(courseId).populate("modules");
-
-  if (!course) {
-    return next(new AppError("Course not found", 404));
+  // Check if the user exists
+  const user = await User.findById(userId).populate('assignedCourses'); // Populate course details
+  if (!user) {
+    return next(new AppError("User not found", 404));
   }
 
-  console.log("Populated Course Data:", course); // Debugging
+  // Ensure the user has assigned courses
+  if (!user.assignedCourses || user.assignedCourses.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: "No assigned courses found for this user",
+    });
+  }
+
+  // Check if the requested course is in the user's assigned courses
+  const assignedCourse = user.assignedCourses.find(
+    (course) => course._id.toString() === courseId
+  );
+
+  if (!assignedCourse) {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. This course is not assigned to the user.",
+    });
+  }
+
+  // Populate modules for the assigned course
+  const courseWithModules = await Course.findById(courseId).populate('modules');
+  if (!courseWithModules) {
+    return next(new AppError("Course not found", 404));
+  }
 
   res.status(200).json({
     success: true,
     message: "Modules retrieved successfully",
-    modules: course.modules,
+    modules: courseWithModules.modules, // Return only the modules under the course
   });
 });
 
-
-
-
 /**
- * @GET_ALL_LESSONS_UNDER_MODULE    ------------------------------------GET ALL LESSONS UNDER THE COURSE ID AND MODULE ID------------------------------------------------
- * Retrieves all lessons under a specific module of a course.
+ * @USER_GET_LESSONS_UNDER_MODULE ----------------GET LESSONS UNDER MODULE AND ASSIGNED COURSE----------------
+ * Retrieves lessons under a specific module in a course assigned to the user.
  */
-export const getAllLessonsUnderModule = asyncHandler(async (req, res, next) => {
-  const { courseId, moduleId } = req.params; // Get courseId and moduleId from params
+export const getLessonsUnderModule = asyncHandler(async (req, res, next) => {
+  const { userId, courseId, moduleId } = req.params; // Extract userId, courseId, and moduleId from request parameters
 
-  // Find the course by ID
-  const course = await Course.findById(courseId);
-  if (!course) {
+  // Check if the user exists
+  const user = await User.findById(userId).populate('assignedCourses'); // Populate assigned courses
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  // Ensure the user has assigned courses
+  if (!user.assignedCourses || user.assignedCourses.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: "No assigned courses found for this user",
+    });
+  }
+
+  // Check if the requested course is in the user's assigned courses
+  const assignedCourse = user.assignedCourses.find(
+    (course) => course._id.toString() === courseId
+  );
+
+  if (!assignedCourse) {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. This course is not assigned to the user.",
+    });
+  }
+
+  // Check if the module exists in the course
+  const courseWithModules = await Course.findById(courseId).populate('modules');
+  if (!courseWithModules) {
     return next(new AppError("Course not found", 404));
   }
 
-  // Find the module by ID within the course
-  const module = await Module.findById(moduleId);
+  const module = courseWithModules.modules.find(
+    (mod) => mod._id.toString() === moduleId
+  );
+
   if (!module) {
+    return res.status(404).json({
+      success: false,
+      message: "Module not found in the assigned course",
+    });
+  }
+
+  // Populate lessons for the module
+  const moduleWithLessons = await Module.findById(moduleId).populate('lessons');
+  if (!moduleWithLessons) {
     return next(new AppError("Module not found", 404));
   }
-
-  // Ensure that the module belongs to the specified course
-  if (module.courseId.toString() !== courseId) {
-    return next(new AppError("Module does not belong to this course", 400));
-  }
-
-  // Find all lessons under the module
-  const lessons = await Lesson.find({ moduleId });
 
   res.status(200).json({
     success: true,
     message: "Lessons retrieved successfully",
-    lessons, // Array of lessons
+    lessons: moduleWithLessons.lessons, // Return lessons under the module
   });
 });
