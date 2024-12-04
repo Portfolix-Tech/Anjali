@@ -19,6 +19,7 @@ import {
   assignCourseToUser,
   deleteUserById,
   removeCourseFromUser,
+  logout,
 } from "../controller/adminController.js";
 
 const route = express.Router();
@@ -42,6 +43,7 @@ route.get("/getAllUsers",getAllUsers);
 route.delete("/deleteUserById/:userId",deleteUserById);
 route.post("/assignCourseToUser", assignCourseToUser,);
 route.delete("/:userId/removeCourseFromUser/:courseId", removeCourseFromUser);
+route.post("/logout",logout);
 
 
 

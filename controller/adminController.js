@@ -80,6 +80,40 @@ export const login = asyncHandler(async (req, res, next) => {
   });
 });
 
+
+/**
+ * @ADMIN - Logs out an admin------------------------------------------------LOGOUT------------------------------------------------
+ */
+export const logout = asyncHandler(async (req, res, next) => {
+  const { adminId } = req.body;
+
+  if (!adminId) {
+    return next(new AppError("Admin ID is required", 400));
+  }
+
+  try {
+    // Validate the adminId
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return next(new AppError("Admin not found", 404));
+    }
+
+    // Implement session or token invalidation logic (optional)
+    // Example: If using a token blacklist or session-based approach
+    // await TokenBlacklist.addToBlacklist(admin.token);
+
+    res.status(200).json({
+      success: true,
+      message: `Admin with ID ${adminId} logged out successfully.`,
+    });
+  } catch (error) {
+    console.error("Error during admin logout:", error);
+    return next(new AppError("Server error during logout", 500));
+  }
+});
+
+
+
 /**
  * @CREATE_COURSE ------------------------------------CREATE COURSE------------------------------------------------
  * Creates a new course and optionally uploads a thumbnail image.

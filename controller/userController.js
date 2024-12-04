@@ -33,6 +33,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
+
 // Login User
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -55,6 +56,32 @@ export const loginUser = async (req, res) => {
       message: "Login successful",
       user: { id: user._id, username: user.username, email: user.email, role: user.role },
       token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Logout User
+export const logoutUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    // Validate userId
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Implement session/token invalidation logic
+    // Example: If you're managing tokens on the server-side (e.g., in a database or Redis):
+    // await TokenBlacklist.addToBlacklist(user.token);
+
+    // Respond with success
+    res.status(200).json({
+      success: true,
+      message: `User with ID ${userId} has been logged out successfully.`,
     });
   } catch (error) {
     console.error(error);

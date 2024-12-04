@@ -2,7 +2,8 @@ import { registerUser,
     loginUser,
     getAssignedCourses,
     getModulesUnderAssignedCourse,
-    getLessonsUnderModule
+    getLessonsUnderModule,
+    logoutUser,
    
  } from "../controller/userController.js";
 import express from "express"
@@ -14,7 +15,7 @@ userroute.post("/userlogin",loginUser)
 userroute.get("/:userId/getAssignedCourses",getAssignedCourses);
 userroute.get("/:userId/course/:courseId/getModulesUnderAssignedCourse",getModulesUnderAssignedCourse);
 userroute.get("/:userId/course/:courseId/module/:moduleId/getLessonsUnderModule",getLessonsUnderModule);
-
+userroute.post("/userlogout",logoutUser);
 
 export default userroute;
 
